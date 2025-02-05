@@ -1,18 +1,20 @@
-import {PDFDownloadLink} from '@react-pdf/renderer'
-/* import MyDocument from './reports/MyDocument' */
-import Pilares from './reports/Pilares'
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import MenuActas from "./views/MenuActas"; // Página del menú de actas
+import FormularioActas from "./views/Actas"; // Página del formulario general
 
 function App() {
   return (
-    <>
-      <h1>Hola mundo!</h1>
-      <PDFDownloadLink document={<Pilares />} fileName='Kimetsu_Pilares.pdf'>
-          {({loading})=>
-            loading ? <button>Cargando...</button> : <button>Descargar</button>
-          }
-      </PDFDownloadLink>
-    </>
-  )
+    <Router>
+      <Routes>
+        {/* Ruta para el menú de actas */}
+        <Route path="/" element={<MenuActas />} />
+
+        {/* Ruta para el formulario general */}
+        <Route path="/formulario-actas" element={<FormularioActas />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
