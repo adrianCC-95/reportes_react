@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
+import Select from "react-select";
 
 import { useLocation, useNavigate } from "react-router-dom";
 //import ModalActa from "../components/actas/modals/ModalActa";
 import GenerateWord from "../components/docx/GenerateWordActa";
 //import { Button } from "reactstrap";
+import { fetchNombres } from "../services/request/apiExcel";
 
 function Actas() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [nombres, setNombres] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Verificar si hay datos, si no, regresar al menú de actas
   useEffect(() => {
@@ -113,6 +117,16 @@ function Actas() {
     }
   };
 
+  const handleNombreChange = (selectedOption) => {
+    setFormData({
+      ...formData,
+      nombreSolicitante: selectedOption ? selectedOption.value : "",
+      numeroDocumento: selectedOption ? selectedOption.dni : "", // Autocompletar el DNI
+      sede: selectedOption ? selectedOption.sede : "",
+      nombreEmpresa: selectedOption ? selectedOption.empresa : "",
+    });
+  };
+
   // Función para agregar un equipo a la lista
   const handleAddEquipo = () => {
     if (
@@ -171,6 +185,15 @@ function Actas() {
     }));
   }, [category, year, serialNumber]); // Dependencias para recalcular el número de documento
 
+  useEffect(() => {
+    async function obtenerNombres() {
+      const nombresData = await fetchNombres();
+      setNombres(nombresData);
+      setLoading(false);
+    }
+
+    obtenerNombres();
+  }, []);
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100 p-6">
       <div className="w-full max-w-5xl bg-white p-8 rounded-lg shadow-lg">
@@ -224,13 +247,15 @@ function Actas() {
                   >
                     Nombre Solicitante
                   </label>
-                  <input
-                    type="text"
+                  <Select
                     id="nombreSolicitante"
                     name="nombreSolicitante"
-                    value={formData.nombreSolicitante}
-                    onChange={handleChange}
-                    className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500"
+                    options={nombres}
+                    isLoading={loading}
+                    isClearable
+                    placeholder="Selecciona un nombre..."
+                    onChange={handleNombreChange}
+                    className="mt-2"
                   />
                 </div>
                 <div>
@@ -267,6 +292,7 @@ function Actas() {
                     value={formData.numeroDocumento}
                     onChange={handleChange}
                     className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500"
+                    readOnly // Evita que el usuario modifique manualmente
                   />
                 </div>
               </div>
@@ -304,21 +330,14 @@ function Actas() {
                   >
                     Sede
                   </label>
-                  <select
+                  <input
+                    type="text"
                     id="sede"
                     name="sede"
                     value={formData.sede}
                     onChange={handleChange}
                     className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="">Selecciona una sede</option>
-                    <option value="ILO">ILO</option>
-                    <option value="AREQUIPA">AREQUIPA</option>
-                    <option value="TACNA">TACNA</option>
-                    <option value="MOQUEGUA">MOQUEGUA</option>
-                    <option value="CAMANA">CAMANA</option>
-                    <option value="MOLLENDO">MOLLENDO</option>
-                  </select>
+                  />
                 </div>
                 <div>
                   <label
