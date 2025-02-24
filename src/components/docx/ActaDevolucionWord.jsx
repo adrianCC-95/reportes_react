@@ -758,7 +758,7 @@ const generateActaDevolucion = ({ formData }) => {
                 bold: true,
               }),
               new TextRun({
-                text: " dias del mes de ",
+                text: " días del mes de ",
                 size: 24,
               }),
               new TextRun({

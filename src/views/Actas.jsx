@@ -6,12 +6,20 @@ import { useLocation, useNavigate } from "react-router-dom";
 import GenerateWord from "../components/docx/GenerateWordActa";
 //import { Button } from "reactstrap";
 import { fetchNombres } from "../services/request/apiExcel";
+import {
+  fetchInventoryByPersonal,
+  descargarYGuardarExcel,
+} from "../services/request/inventoryService"; // Servicio de inventario
+import InventoryTable from "../components/tablas/InventoryTable";
+import { Spinner } from "reactstrap";
 
 function Actas() {
   const location = useLocation();
   const navigate = useNavigate();
   const [nombres, setNombres] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [loadingExcel, setLoadingExcel] = useState(false);
+  const [equipoSeleccionado, setEquipoSeleccionado] = useState(null);
 
   // Verificar si hay datos, si no, regresar al menú de actas
   useEffect(() => {
@@ -28,17 +36,16 @@ function Actas() {
 
   // Cargar datos guardados en localStorage
   const [formData, setFormData] = useState(() => {
-    const savedData = JSON.parse(localStorage.getItem("formData")) || {};
+    // const savedData = JSON.parse(localStorage.getItem("formData")) || {};
     return {
       sede: "ILO",
       fechaEntrega: new Date().toISOString().split("T")[0],
       codigoDocumento: "",
       areaResponsable: "TECNOLOGIAS DE LA INFORMACION",
-      nombreEmpresa: savedData.nombreEmpresa || "EFICIENT FAST SAC",
-      nombreSolicitante:
-        savedData.nombreSolicitante || "JUAN CARLOS MENDOZA UGARTE",
-      tipoDocumento: savedData.tipoDocumento || "DNI",
-      numeroDocumento: savedData.numeroDocumento || "75653454",
+      nombreEmpresa: "",
+      nombreSolicitante: "",
+      tipoDocumento: "DNI",
+      numeroDocumento: "",
       nombreEncargado: "ADRIAN HUANACUNI BONIFACIO",
       cargoEncargado: "ASISTENTE DE TI",
       equipos: [],
@@ -55,19 +62,19 @@ function Actas() {
   });
 
   // Guardar en localStorage cada vez que cambian los datos importantes
-  useEffect(() => {
-    const { nombreSolicitante, tipoDocumento, numeroDocumento, nombreEmpresa } =
-      formData;
-    localStorage.setItem(
-      "formData",
-      JSON.stringify({
-        nombreSolicitante,
-        tipoDocumento,
-        numeroDocumento,
-        nombreEmpresa,
-      })
-    );
-  }, [formData]);
+  // useEffect(() => {
+  //   const { nombreSolicitante, tipoDocumento, numeroDocumento, nombreEmpresa } =
+  //     formData;
+  //   localStorage.setItem(
+  //     "formData",
+  //     JSON.stringify({
+  //       nombreSolicitante,
+  //       tipoDocumento,
+  //       numeroDocumento,
+  //       nombreEmpresa,
+  //     })
+  //   );
+  // }, [formData]);
 
   // const [formData, setFormData] = useState({
   //   sede: "ILO",
@@ -117,7 +124,7 @@ function Actas() {
     }
   };
 
-  const handleNombreChange = (selectedOption) => {
+  const handleNombreChange = async (selectedOption) => {
     setFormData({
       ...formData,
       nombreSolicitante: selectedOption ? selectedOption.value : "",
@@ -125,18 +132,20 @@ function Actas() {
       sede: selectedOption ? selectedOption.sede : "",
       nombreEmpresa: selectedOption ? selectedOption.empresa : "",
     });
+    // obtenerInventario(selectedOption ? selectedOption.value : "");
   };
 
   // Función para agregar un equipo a la lista
   const handleAddEquipo = () => {
     if (
-      formData.equipo.nombre &&
-      formData.equipo.marca &&
-      formData.equipo.modelo &&
-      formData.equipo.color &&
-      formData.equipo.serie &&
-      formData.equipo.precio &&
-      formData.equipo.codigo
+      (formData.equipo.nombre &&
+        formData.equipo.marca &&
+        formData.equipo.modelo &&
+        formData.equipo.color &&
+        formData.equipo.serie &&
+        formData.equipo.precio &&
+        formData.equipo.codigo) ||
+      equipoSeleccionado
     ) {
       setFormData({
         ...formData,
@@ -165,6 +174,51 @@ function Actas() {
     });
   };
 
+  // funcion traer datos seleccionados de la tabla inventario
+  const handleEquipoSeleccionado = (equipo) => {
+    setEquipoSeleccionado(equipo);
+  };
+
+  const actualizarLista = () => {
+    getNombresPersonal();
+  };
+
+  const actualizarInventario = () => {
+    setLoadingExcel(true);
+    descargarYGuardarExcel()
+      .then(() => setLoadingExcel(false))
+      .catch((error) => {
+        console.error("❌ Error al actualizar el inventario:", error);
+        setLoadingExcel(false);
+      });
+  };
+
+  const getNombresPersonal = async () => {
+    setLoading(true);
+    const nombresData = await fetchNombres();
+    if (nombresData) setLoading(false);
+    setNombres(nombresData);
+  };
+
+  useEffect(() => {
+    getNombresPersonal();
+  }, []);
+
+  useEffect(() => {
+    setFormData({
+      ...formData,
+      equipo: {
+        codigo: equipoSeleccionado ? equipoSeleccionado.CODIGO : "",
+        serie: equipoSeleccionado ? equipoSeleccionado["NRO. SERIE"] : "",
+        modelo: equipoSeleccionado ? equipoSeleccionado.MODELO : "",
+        nombre: equipoSeleccionado ? equipoSeleccionado["NOMBRE PRODUCTO"] : "",
+        marca: equipoSeleccionado ? equipoSeleccionado.MARCA : "",
+        precio: 0,
+        color: "N/A",
+      },
+    });
+  }, [equipoSeleccionado]);
+
   useEffect(() => {
     // Crear el número de documento cuando cambien los valores del formulario
     const generateNumeroDocumento = () => {
@@ -177,30 +231,22 @@ function Actas() {
       return `${categoryInitial}-${yearq}-${serialNum}`;
     };
 
-    const codigoDocumento = generateNumeroDocumento();
+    const codigoDocumentoc = generateNumeroDocumento();
 
     setFormData((prevData) => ({
       ...prevData,
-      codigoDocumento, // Actualizamos el número de documento
+      codigoDocumento: codigoDocumentoc, // Actualizamos el número de documento
     }));
   }, [category, year, serialNumber]); // Dependencias para recalcular el número de documento
 
-  useEffect(() => {
-    async function obtenerNombres() {
-      const nombresData = await fetchNombres();
-      setNombres(nombresData);
-      setLoading(false);
-    }
-
-    obtenerNombres();
-  }, []);
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100 p-6">
       <div className="w-full max-w-5xl bg-white p-8 rounded-lg shadow-lg">
         <div className="grid grid-cols-1">
           <section className="border border-gray-300 rounded-lg p-4 bg-gray-50">
             <h1 className="text-2xl font-semibold text-center text-gray-800">
-              FORMULARIO DE {actaType.nombre ?? "N/A"}
+              FORMULARIO DE {actaType.nombre ?? "N/A"} -{" "}
+              {category?.toUpperCase()}
             </h1>
           </section>
         </div>
@@ -253,6 +299,7 @@ function Actas() {
                     options={nombres}
                     isLoading={loading}
                     isClearable
+                    isSearchable
                     placeholder="Selecciona un nombre..."
                     onChange={handleNombreChange}
                     className="mt-2"
@@ -295,6 +342,26 @@ function Actas() {
                     readOnly // Evita que el usuario modifique manualmente
                   />
                 </div>
+              </div>
+              <div className="mt-6 flex justify-between">
+                <button
+                  type="button"
+                  onClick={actualizarLista}
+                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-gray-400"
+                >
+                  {loading ? <Spinner size="sm" /> : " Actualizar Nombres"}
+                </button>
+                <button
+                  type="button"
+                  onClick={actualizarInventario}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-400"
+                >
+                  {loadingExcel ? (
+                    <Spinner size="sm" />
+                  ) : (
+                    " Actualizar Inventario"
+                  )}
+                </button>
               </div>
             </section>
           </div>
@@ -455,6 +522,11 @@ function Actas() {
             </section>
           </div>
         </div>
+        <br />
+        <InventoryTable
+          nombrePersonal={formData.nombreSolicitante}
+          onEquipoSeleccionado={handleEquipoSeleccionado}
+        />
         <br />
         <div className="grid grid-cols-1">
           {/* Datos de los Equipos */}

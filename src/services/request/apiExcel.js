@@ -21,6 +21,7 @@ export async function buscarEmpleado(nombreBuscado) {
 
     // Obtener encabezados y datos
     const headers = json.table.cols.map((col) => col.label);
+
     const rows = json.table.rows.map((row) =>
       row.c.map((cell) => (cell ? cell.v : null))
     );
@@ -74,7 +75,7 @@ export const fetchNombres = async () => {
     const nombreIndex = headers.indexOf("NOMBRE COMPLETO");
     const dniIndex = headers.indexOf("DNI");
     const sedeIndex = headers.indexOf("SEDE");
-    const empresaIndex = headers.indexOf("EMPRESA");
+    const empresaIndex = headers.indexOf("EMPRESA 2");
 
     if (
       nombreIndex === -1 ||
@@ -89,6 +90,7 @@ export const fetchNombres = async () => {
     }
 
     // Extraer nombres y datos asociados
+
     return rows
       .map((row) => ({
         nombre: row[nombreIndex],
