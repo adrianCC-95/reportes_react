@@ -14,6 +14,8 @@ import {
   ImageRun,
 } from "docx";
 
+import logo from "../../assets/logo-empresas.jpg";
+
 const formatFecha = (fechaString) => {
   const meses = [
     "ENERO",
@@ -43,7 +45,8 @@ const formatFecha = (fechaString) => {
   // return `a los ${parseInt(dia, 10)} días del mes de ${nombreMes} del ${año}`;
   return { diaHoy, mesHoy, yearHoy };
 };
-const generateActaDevolucion = ({ formData }) => {
+
+const generateActaDevolucion = async ({ formData }) => {
   const {
     sede,
     areaResponsable,
@@ -785,7 +788,7 @@ const generateActaDevolucion = ({ formData }) => {
                 bold: true,
               }),
               new TextRun({
-                text: "identificad@ con ",
+                text: "identificado con ",
                 size: 24,
               }),
               new TextRun({
@@ -902,6 +905,8 @@ const generateActaDevolucion = ({ formData }) => {
               }),
             ],
           }),
+          new Paragraph({ text: "" }),
+
           new Paragraph({ text: "" }),
           singleColumnTable, // Agregar la tabla al documento
           new Paragraph({

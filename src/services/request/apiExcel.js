@@ -1,7 +1,11 @@
 import axios from "axios";
 
+import apiUrl from "../../config/serviciosUrl";
+
+const API_URL = apiUrl;
+
 const SHEET_URL =
-  "https://docs.google.com/spreadsheets/d/1Lu1nJ-hXTHgmrcwYzsli5D5MW63GYflSzQboXbHzUXs/gviz/tq?tqx=out:json";
+  "https://docs.google.com/spreadsheets/d/1Lu1nJ-hXTHgmrcwYzsli5D5MW63GYflSzQboXbHzUXs/export?format=xlsx";
 
 export async function buscarEmpleado(nombreBuscado) {
   const url =
@@ -54,49 +58,42 @@ export async function buscarEmpleado(nombreBuscado) {
 
 export const fetchNombres = async () => {
   try {
-    const response = await axios.get(SHEET_URL);
-    const text = response.data;
+    // 1️⃣ Obtener datos del Excel desde el backend
+    const response = await descargarYEnviarExcelPersonalDTI();
 
-    // Limpiar JSON de Google Sheets
-    const json = JSON.parse(
-      text
-        .replace("/*O_o*/", "")
-        .replace("google.visualization.Query.setResponse(", "")
-        .slice(0, -2)
-    );
+    // Verificar si la respuesta tiene la estructura correcta
+    if (!response || !response.data || !Array.isArray(response.data)) {
+      console.error("❌ Los datos obtenidos no son un array válido.");
+      return [];
+    }
 
-    // Obtener encabezados y datos
-    const headers = json.table.cols.map((col) => col.label);
-    const rows = json.table.rows.map((row) =>
-      row.c.map((cell) => (cell ? cell.v : null))
-    );
+    const dataExcel = response.data; // Extraemos el array de la respuesta
 
-    // Encontrar índices de las columnas
-    const nombreIndex = headers.indexOf("NOMBRE COMPLETO");
-    const dniIndex = headers.indexOf("DNI");
-    const sedeIndex = headers.indexOf("SEDE");
-    const empresaIndex = headers.indexOf("EMPRESA 2");
+    console.log("📂 Datos obtenidos del backend:", dataExcel);
 
+    // 2️⃣ Obtener encabezados desde el primer elemento del array
+    const headers = Object.keys(dataExcel[0]); // Obtiene los nombres de las columnas
+
+    // 3️⃣ Buscar índices de las columnas necesarias
     if (
-      nombreIndex === -1 ||
-      dniIndex === -1 ||
-      sedeIndex === -1 ||
-      empresaIndex === -1
+      !headers.includes("NOMBRE COMPLETO") ||
+      !headers.includes("DNI") ||
+      !headers.includes("SEDE") ||
+      !headers.includes("EMPRESA 2")
     ) {
       console.error(
-        "No se encontraron las columnas necesarias ('Nombre Completo', 'DNI', 'Sede', 'Empresa')"
+        "❌ No se encontraron las columnas necesarias ('Nombre Completo', 'DNI', 'Sede', 'Empresa')"
       );
       return [];
     }
 
-    // Extraer nombres y datos asociados
-
-    return rows
+    // 4️⃣ Extraer y mapear los datos
+    return dataExcel
       .map((row) => ({
-        nombre: row[nombreIndex],
-        dni: row[dniIndex],
-        sede: row[sedeIndex],
-        empresa: row[empresaIndex],
+        nombre: row["NOMBRE COMPLETO"],
+        dni: row["DNI"],
+        sede: row["SEDE"],
+        empresa: row["EMPRESA 2"],
       }))
       .filter((persona) => persona.nombre && persona.dni) // Filtrar registros vacíos
       .map((persona) => ({
@@ -107,7 +104,35 @@ export const fetchNombres = async () => {
         empresa: persona.empresa,
       }));
   } catch (error) {
-    console.error("Error al obtener los datos:", error.message);
+    console.error("❌ Error al obtener los datos:", error.message);
     return [];
+  }
+};
+
+// Función para descargar y almacenar en storage del backend
+export const descargarYEnviarExcelPersonalDTI = async () => {
+  try {
+    // 1️⃣ Descargar el archivo desde Google Sheets
+    const response = await fetch(SHEET_URL);
+    const blob = await response.blob();
+
+    // 2️⃣ Crear FormData y adjuntar el archivo
+    const formData = new FormData();
+    formData.append("file", blob, "PersonalTI.xlsx");
+
+    // 3️⃣ Enviar al backend
+    const uploadResponse = await axios.post(
+      `${API_URL}/api/v1/personal/upload-excel-personal`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    console.log("✅ Archivo enviado al backend:", uploadResponse.data);
+    return uploadResponse.data; // ⬅ Retornar los datos procesados
+  } catch (error) {
+    console.error("❌ Error al enviar el archivo al backend:", error);
+    return null;
   }
 };

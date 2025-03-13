@@ -1,28 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
-import {
-  AlignmentType,
-  Document,
-  Packer,
-  Table,
-  TableRow,
-  TableCell,
-  WidthType,
-  Paragraph,
-  TextRun,
-  BorderStyle,
-  Header,
-  Media,
-  ImageRun,
-} from "docx";
 import { saveAs } from "file-saver";
 import logo from "../../assets/logo-empresas.jpg";
 import { Spinner } from "reactstrap";
 import generateActaPrestamo from "./ActaPrestamoWord";
 import generateActaDevolucion from "./ActaDevolucionWord";
 import generateActaEntrega from "./ActaEntregaWord";
+import { saveActaNextcloud } from "../../services/request/apiNexcloud";
 
-const GenerateWord = ({ formData, actaType }) => {
+const GenerateWord = ({ formData, actaType, dataGeneral }) => {
   const [isLoadingWord, setIsLoadingWord] = useState(false); // Estado para Word
   const [isLoadingPDF, setIsLoadingPDF] = useState(false); // Estado para PDF
 
@@ -48,18 +34,27 @@ const GenerateWord = ({ formData, actaType }) => {
 
   // Función para descargar el documento como Word
   const downloadAsWord = async () => {
-    const blob = await handleDownload();
+    const activeSave = localStorage.getItem("autoSave");
+
     setIsLoadingWord(true); // Mostrar loading
+    const { year, serialNumber, category } = dataGeneral;
+    const folder = actaType.folder ?? "";
+    const pathFolder = `${year.toString()}/${category}/${folder}`;
     try {
-      // const blob = await Packer.toBlob(doc); // Generar el blob del documento
-      saveAs(
-        blob,
-        `ACTA DE ${actaType.nombre || "SinNombre"} ${
-          formData.codigoDocumento || "0"
-        } ${formData.nombreSolicitante || "N/A"}.docx`
-      ); // Descargar
+      const blob = await handleDownload();
+      const nombre = `ACTA DE ${actaType.nombre || "SinNombre"} ${
+        formData.codigoDocumento || "0"
+      } ${formData.nombreSolicitante || "N/A"}.docx`;
+
+      // Intentar guardar en Nextcloud
+      if (activeSave === "true")
+        await saveActaNextcloud(blob, nombre, pathFolder);
+
+      // Solo descargar si NO hubo error en Nextcloud
+      saveAs(blob, nombre);
     } catch (error) {
-      console.error("Error al generar Word:", error);
+      console.error("❌ Error al generar o guardar el Word:", error);
+      alert("No se pudo guardar el acta en Nextcloud. Inténtalo de nuevo.");
     } finally {
       setIsLoadingWord(false); // Ocultar loading
     }

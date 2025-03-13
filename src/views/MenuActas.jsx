@@ -10,7 +10,9 @@ import {
   FormGroup,
   Label,
   Input,
+  Spinner,
 } from "reactstrap";
+import { getActasNombres } from "../services/request/apiNexcloud";
 
 const MenuActas = () => {
   const navigate = useNavigate();
@@ -22,10 +24,37 @@ const MenuActas = () => {
     category: "Celulares",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // 🔹 10 documentos por página
+  const [dataActas, setDataActas] = useState([]);
+
+  // 🔹 Estado para el switch de guardado automático
+  const [autoSave, setAutoSave] = useState(
+    JSON.parse(localStorage.getItem("autoSave")) || false
+  );
+
+  // 🔹 Manejar el cambio de switch
+  const toggleAutoSave = () => {
+    const newState = !autoSave;
+    setAutoSave(newState);
+    localStorage.setItem("autoSave", JSON.stringify(newState));
+  };
+
   const tipoActas = [
-    { id: 1, nombre: "ENTREGA Y CONFORMIDAD", prefijo: "AEC" },
-    { id: 2, nombre: "DEVOLUCION Y CONFORMIDAD", prefijo: "ADC" },
-    { id: 3, nombre: "PRESTAMO", prefijo: "PRE" },
+    {
+      id: 1,
+      nombre: "ENTREGA Y CONFORMIDAD",
+      prefijo: "AEC",
+      folder: "Entrega",
+    },
+    {
+      id: 2,
+      nombre: "DEVOLUCION Y CONFORMIDAD",
+      prefijo: "ADC",
+      folder: "Devolucion",
+    },
+    { id: 3, nombre: "PRESTAMO", prefijo: "PRE", folder: "Prestamo" },
   ];
 
   const openModal = (acta) => {
@@ -50,6 +79,36 @@ const MenuActas = () => {
     });
   };
 
+  const getActasLista = async () => {
+    const category = formData.category;
+    const year = formData.year;
+    const folder = selectedActa.folder;
+    const folderFull = `${year}/${category}/${folder}`;
+    setIsLoading(true);
+    if (year || category || folder === "") {
+      console.log(
+        "error al traer los datos, verifique que los valores esten correctos"
+      );
+    }
+    const res = await getActasNombres(folderFull);
+    if (res) setDataActas(res.archivos);
+
+    setIsLoading(false);
+  };
+
+  // 🔹 Calcula los documentos de la página actual
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentDocuments = dataActas.slice(indexOfFirstItem, indexOfLastItem);
+
+  // 🔹 Cambiar de página
+  const totalPages = Math.ceil(dataActas.length / itemsPerPage);
+  const changePage = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   // Establecer el año actual al cargar el componente
   useEffect(() => {
     const currentYear = new Date().getFullYear();
@@ -58,6 +117,10 @@ const MenuActas = () => {
       year: currentYear, // Establecer el año actual en el estado
     }));
   }, [modalIsOpen]); // El arreglo vacío significa que esto solo se ejecutará una vez cuando el componente se monte
+
+  useEffect(() => {
+    getActasLista();
+  }, [modalIsOpen, formData, selectedActa]);
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100 p-6">
@@ -83,46 +146,140 @@ const MenuActas = () => {
       </div>
 
       {/* Modal */}
-      <Modal isOpen={modalIsOpen} toggle={closeModal}>
-        <ModalHeader
-          toggle={closeModal}
-        >{`DATOS PARA ACTA DE ${selectedActa.nombre}`}</ModalHeader>
+      <Modal isOpen={modalIsOpen} toggle={closeModal} size="xl">
+        <ModalHeader toggle={closeModal}>
+          {`DATOS PARA ACTA DE ${selectedActa.nombre}`}
+        </ModalHeader>
         <ModalBody>
-          <Form>
-            <FormGroup>
-              <Label for="year">Año</Label>
-              <Input
-                type="number"
-                id="year"
-                name="year"
-                value={formData.year}
-                onChange={handleChange}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label for="serialNumber">Número de Serie</Label>
-              <Input
-                type="text"
-                id="serialNumber"
-                name="serialNumber"
-                value={formData.serialNumber}
-                onChange={handleChange}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label for="category">Categoría de Producto</Label>
-              <Input
-                type="select"
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-              >
-                <option value="Celulares">Celulares</option>
-                <option value="Equipos">Equipos</option>
-              </Input>
-            </FormGroup>
-          </Form>
+          <div className="grid grid-cols-2 gap-6">
+            {/* 📂 Columna Izquierda - Documentos Nextcloud */}
+            <div className="border-r pr-6">
+              <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                📄 Documentos Encontrados
+              </h3>
+
+              {isLoading ? (
+                <div className="flex justify-center items-center py-10">
+                  <Spinner color="primary" />
+                  <span className="ml-2 text-gray-600">
+                    Cargando documentos...
+                  </span>
+                </div>
+              ) : dataActas.length > 0 ? (
+                <div className="border rounded-lg shadow-sm overflow-hidden">
+                  <div className="max-h-80 overflow-y-auto">
+                    <table className="min-w-full bg-white border border-gray-300">
+                      <thead className="bg-gray-200 text-gray-700">
+                        <tr>
+                          <th className="py-2 px-4 border-b text-left">#</th>
+                          <th className="py-2 px-4 border-b text-left">
+                            Nombre del Archivo
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentDocuments.map((doc, index) => (
+                          <tr
+                            key={index}
+                            className="hover:bg-gray-100 transition"
+                          >
+                            <td className="py-2 px-4 border-b">
+                              {indexOfFirstItem + index + 1}
+                            </td>
+                            <td className="py-2 px-4 border-b text-gray-800">
+                              {doc}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* 🔹 Paginación */}
+                  <div className="flex justify-between items-center p-3 bg-gray-100">
+                    <button
+                      className="px-3 py-1 text-sm text-white bg-blue-600 rounded-md disabled:bg-gray-300"
+                      onClick={() => changePage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      ◀ Anterior
+                    </button>
+                    <span className="text-gray-700 text-sm">
+                      Página {currentPage} de {totalPages}
+                    </span>
+                    <button
+                      className="px-3 py-1 text-sm text-white bg-blue-600 rounded-md disabled:bg-gray-300"
+                      onClick={() => changePage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      Siguiente ▶
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">
+                  No se encontraron documentos.
+                </p>
+              )}
+            </div>
+
+            {/* 📋 Columna Derecha - Formulario */}
+            <div>
+              <Form>
+                <FormGroup>
+                  <Label for="year">Año</Label>
+                  <Input
+                    type="number"
+                    id="year"
+                    name="year"
+                    value={formData.year}
+                    onChange={handleChange}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label for="serialNumber">Número de Serie</Label>
+                  <Input
+                    type="text"
+                    id="serialNumber"
+                    name="serialNumber"
+                    value={formData.serialNumber}
+                    onChange={handleChange}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label for="category">Categoría de Producto</Label>
+                  <Input
+                    type="select"
+                    id="category"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                  >
+                    <option value="Celulares">Celulares</option>
+                    <option value="Equipos">Equipos</option>
+                  </Input>
+                </FormGroup>
+                {/* 🔹 Interruptor más grande y centrado */}
+                <FormGroup className="mt-8 flex flex-col items-center">
+                  <Label className="text-lg font-semibold mb-4">
+                    Desea guardar automaticamente el archivo en Nextcloud?
+                  </Label>
+                  <div
+                    className={`relative w-20 h-10 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 ${
+                      autoSave ? "bg-green-500" : "bg-gray-400"
+                    }`}
+                    onClick={toggleAutoSave}
+                  >
+                    <div
+                      className={`absolute w-8 h-8 bg-white rounded-full transition-all duration-300 ${
+                        autoSave ? "translate-x-10" : "translate-x-0"
+                      }`}
+                    ></div>
+                  </div>
+                </FormGroup>
+              </Form>
+            </div>
+          </div>
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={closeModal}>

@@ -1,140 +1,59 @@
-import * as XLSX from "xlsx";
 import axios from "axios";
-import Dexie from "dexie";
-import stringSimilarity from "string-similarity";
+import apiUrl from "../../config/serviciosUrl";
 
-const INVENTORY_FILE = "/assets/data/inventario.xlsx";
+//const INVENTORY_FILE = "/assets/data/inventario.xlsx";
+const API_URL = apiUrl;
 
 const FILE_URL =
   "https://docs.google.com/spreadsheets/d/1oouGGiRlGhJeMiHBr-Hdbv6q54YI_jmgGsv6KQcz2Bs/export?format=xlsx";
 
-// Configurar IndexedDB con Dexie
-const db = new Dexie("ExcelDatabase");
-db.version(1).stores({
-  files: "name, data",
-});
+// Axios backend https endpoint
+export const fetchExcelData = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/api/v1/inventario/excel-data`);
 
-// export const fetchInventoryDataEquipos = async (sheetName = "Equipos") => {
-//   try {
-//     // Cargar el archivo desde assets
-//     const response = await fetch(INVENTORY_FILE);
-//     const arrayBuffer = await response.arrayBuffer();
-
-//     // Leer el archivo Excel
-//     const workbook = XLSX.read(arrayBuffer, { type: "array" });
-
-//     // Verificar si la hoja existe
-//     if (!workbook.Sheets[sheetName]) {
-//       throw new Error(`❌ La hoja "${sheetName}" no existe en el archivo.`);
-//     }
-
-//     // Convertir la hoja de Excel a JSON
-//     const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-//     return data;
-//   } catch (error) {
-//     console.error("❌ Error al cargar la hoja de Excel:", error);
-//     return [];
-//   }
-// };
+    return await response.data;
+  } catch (error) {
+    console.error("❌ Error al obtener datos del Excel:", error);
+    return [];
+  }
+};
 
 export const fetchInventoryDataEquipos = async (sheetName = "Equipos") => {
   try {
-    let storedFile = await db.files.get("inventario.xlsx");
+    let storedFile = await fetchExcelData();
 
     if (!storedFile) {
-      console.log("📂 No se encontró el archivo en IndexedDB, descargando...");
-      await fetchAndStoreExcel();
-      storedFile = await db.files.get("inventario.xlsx"); // Volver a obtenerlo después de guardarlo
+      console.log("📂 No se encontró el archivo ...");
+      await descargarYEnviarExcel();
+      storedFile = await fetchExcelData(); // Volver a obtenerlo después de guardarlo
     }
 
     if (!storedFile)
-      throw new Error(`❌ No se pudo obtener el archivo desde IndexedDB.`);
+      throw new Error("❌ No se pudo obtener el archivo desde el servidor.");
 
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-
-        // Verificar si la hoja existe
-        if (!workbook.Sheets[sheetName]) {
-          reject(
-            new Error(`❌ La hoja "${sheetName}" no existe en el archivo.`)
-          );
-          return;
-        }
-
-        // Convertir la hoja a JSON
-        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-        resolve(jsonData);
-      };
-
-      reader.onerror = (error) => reject(error);
-      reader.readAsArrayBuffer(storedFile.data);
-    });
+    return storedFile.data.jsonDataEquipos; // Si el JSON tiene una estructura como { jsonData: [...], jsonDataEquipos: }
   } catch (error) {
     console.error("❌ Error al cargar la hoja de Excel:", error);
     return [];
   }
 };
 
-// Función para cargar datos del inventario desde la carpeta public
-// export const fetchInventoryData = async () => {
-//   try {
-//     const response = await fetch(INVENTORY_FILE);
-//     const blob = await response.blob();
-
-//     return new Promise((resolve, reject) => {
-//       const reader = new FileReader();
-
-//       reader.onload = (e) => {
-//         const data = new Uint8Array(e.target.result);
-//         const workbook = XLSX.read(data, { type: "array" });
-//         const sheetName = workbook.SheetNames[0];
-//         const sheet = workbook.Sheets[sheetName];
-//         const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-//         resolve(jsonData);
-//       };
-
-//       reader.onerror = (error) => reject(error);
-//       reader.readAsArrayBuffer(blob);
-//     });
-//   } catch (error) {
-//     console.error("❌ Error leyendo el archivo Excel:", error);
-//     return [];
-//   }
-// };
-
-// Función para obtener los datos del inventario desde el navegador db
+// Función para obtener los datos del inventario
 export const fetchInventoryData = async () => {
   try {
-    let storedFile = await db.files.get("inventario.xlsx");
+    let storedFile = await fetchExcelData();
 
     if (!storedFile) {
-      console.log("📂 No se encontró el archivo en IndexedDB, descargando...");
-      await descargarYGuardarExcel();
-      storedFile = await db.files.get("inventario.xlsx"); // Volver a obtenerlo después de guardarlo
+      console.log("📂 No se encontró el archivo ...");
+      await descargarYEnviarExcel();
+      storedFile = await fetchExcelData(); // Volver a obtenerlo después de guardarlo
     }
 
     if (!storedFile)
-      throw new Error("❌ No se pudo obtener el archivo desde IndexedDB.");
+      throw new Error("❌ No se pudo obtener el archivo desde el servidor.");
 
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheetName = workbook.SheetNames[0]; // Puedes cambiarlo si necesitas otra hoja
-        const sheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
-        resolve(jsonData);
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsArrayBuffer(storedFile.data);
-    });
+    return storedFile.data.jsonData; // Si el JSON tiene una estructura como { jsonData: [...], jsonDataEquipos: }
   } catch (error) {
     console.error("❌ Error leyendo el archivo Excel:", error);
     return [];
@@ -209,15 +128,28 @@ export const fetchInventoryByPersonal = async (nombreCompleto) => {
   return [formatCoincidencias, formatCoincidenciasEquipo];
 };
 
-// Función para descargar y almacenar en IndexedDB
-export const descargarYGuardarExcel = async () => {
+// Función para descargar y almacenar el inventario excel
+export const descargarYEnviarExcel = async () => {
   try {
+    // 1️⃣ Descargar el archivo desde Google Sheets
     const response = await fetch(FILE_URL);
     const blob = await response.blob();
-    await db.files.put({ name: "inventario.xlsx", data: blob });
-    console.log("✅ Archivo Excel guardado en IndexedDB.");
-    return true;
+
+    // 2️⃣ Crear FormData y adjuntar el archivo
+    const formData = new FormData();
+    formData.append("file", blob, "inventario.xlsx");
+
+    // 3️⃣ Enviar al backend
+    const uploadResponse = await axios.post(
+      `${API_URL}/api/v1/inventario/upload-excel`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    console.log("✅ Archivo enviado al backend:", uploadResponse.data);
   } catch (error) {
-    console.error("❌ Error al descargar y almacenar el archivo:", error);
+    console.error("❌ Error al enviar el archivo al backend:", error);
   }
 };

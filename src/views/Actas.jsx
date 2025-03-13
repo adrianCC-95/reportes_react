@@ -8,7 +8,7 @@ import GenerateWord from "../components/docx/GenerateWordActa";
 import { fetchNombres } from "../services/request/apiExcel";
 import {
   fetchInventoryByPersonal,
-  descargarYGuardarExcel,
+  descargarYEnviarExcel,
 } from "../services/request/inventoryService"; // Servicio de inventario
 import InventoryTable from "../components/tablas/InventoryTable";
 import { Spinner } from "reactstrap";
@@ -20,6 +20,17 @@ function Actas() {
   const [loading, setLoading] = useState(false);
   const [loadingExcel, setLoadingExcel] = useState(false);
   const [equipoSeleccionado, setEquipoSeleccionado] = useState(null);
+  // 🔹 Estado del switch con persistencia en localStorage
+  const [autoSave, setAutoSave] = useState(
+    JSON.parse(localStorage.getItem("autoSave")) || false
+  );
+
+  // 🔹 Manejo del cambio del switch
+  const toggleAutoSave = () => {
+    const newState = !autoSave;
+    setAutoSave(newState);
+    localStorage.setItem("autoSave", JSON.stringify(newState));
+  };
 
   // Verificar si hay datos, si no, regresar al menú de actas
   useEffect(() => {
@@ -33,7 +44,11 @@ function Actas() {
   }
 
   const { actaType, year, serialNumber, category } = location.state || {};
-
+  const dataGeneral = {
+    year,
+    serialNumber,
+    category,
+  };
   // Cargar datos guardados en localStorage
   const [formData, setFormData] = useState(() => {
     // const savedData = JSON.parse(localStorage.getItem("formData")) || {};
@@ -185,7 +200,7 @@ function Actas() {
 
   const actualizarInventario = () => {
     setLoadingExcel(true);
-    descargarYGuardarExcel()
+    descargarYEnviarExcel()
       .then(() => setLoadingExcel(false))
       .catch((error) => {
         console.error("❌ Error al actualizar el inventario:", error);
@@ -242,13 +257,24 @@ function Actas() {
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100 p-6">
       <div className="w-full max-w-5xl bg-white p-8 rounded-lg shadow-lg">
-        <div className="grid grid-cols-1">
-          <section className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-            <h1 className="text-2xl font-semibold text-center text-gray-800">
+        <div className="flex items-center p-4 border border-gray-300 rounded-lg bg-gray-50">
+          {/* 🔹 Columna 1: Título (70%) */}
+          <div className="w-[65%] pr-4 flex items-center justify-center text-center">
+            <h1 className="text-3xl font-bold text-gray-900">
               FORMULARIO DE {actaType.nombre ?? "N/A"} -{" "}
               {category?.toUpperCase()}
             </h1>
-          </section>
+          </div>
+
+          {/* 🔹 Línea divisora */}
+          <div className="w-px h-16 bg-gray-400"></div>
+
+          {/* 🔹 Columna 2: Código (30%) */}
+          <div className="w-[35%] pl-4 flex items-center justify-center text-center">
+            <span className="text-3xl font-extrabold text-blue-700 bg-blue-100 px-5 py-3 rounded-lg shadow-md">
+              {formData.codigoDocumento}
+            </span>
+          </div>
         </div>
         <br />
         {/* Contenedor principal con dos columnas */}
@@ -520,6 +546,27 @@ function Actas() {
                 </div>
               </div>
             </section>
+            <br />
+            <section className="border border-gray-300 px-4 rounded-lg bg-gray-50">
+              {/* 🔹 Interruptor Estilizado Compacto */}
+              <div className="my-2 flex items-center justify-between">
+                <label className="text-sm text-gray-700 font-semibold">
+                  ¿Guardar automáticamente en Nextcloud?
+                </label>
+                <div
+                  className={`relative w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors ${
+                    autoSave ? "bg-green-500" : "bg-gray-400"
+                  }`}
+                  onClick={toggleAutoSave}
+                >
+                  <div
+                    className={`absolute w-4 h-4 bg-white rounded-full shadow-md transition-transform ${
+                      autoSave ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  ></div>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
         <br />
@@ -758,7 +805,11 @@ function Actas() {
               {/* <Button color="success" onClick={toggleModal}>
                 Vista Previa del Acta en PDF
               </Button> */}
-              <GenerateWord formData={formData} actaType={actaType} />
+              <GenerateWord
+                formData={formData}
+                actaType={actaType}
+                dataGeneral={dataGeneral}
+              />
             </div>
           </div>
         </section>
