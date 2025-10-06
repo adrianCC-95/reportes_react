@@ -31,17 +31,15 @@ function Actas() {
     setAutoSave(newState);
     localStorage.setItem("autoSave", JSON.stringify(newState));
   };
-
+  if (!location.state) {
+    return null; // No renderiza nada mientras redirige
+  }
   // Verificar si hay datos, si no, regresar al menú de actas
   useEffect(() => {
     if (!location.state) {
       navigate("/"); // Redirige al menú si no hay datos
     }
   }, [location.state, navigate]);
-
-  if (!location.state) {
-    return null; // No renderiza nada mientras redirige
-  }
 
   const { actaType, year, serialNumber, category } = location.state || {};
   const dataGeneral = {
@@ -62,7 +60,7 @@ function Actas() {
       tipoDocumento: "DNI",
       numeroDocumento: "",
       nombreEncargado: "ADRIAN HUANACUNI BONIFACIO",
-      cargoEncargado: "ASISTENTE DE TI",
+      cargoEncargado: "ASISTENTE DE SISTEMAS",
       equipos: [],
       equipo: {
         nombre: "",

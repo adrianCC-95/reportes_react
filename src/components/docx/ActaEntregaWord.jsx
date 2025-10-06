@@ -71,7 +71,7 @@ const generateActaEntrega = async ({ formData }) => {
                 new TextRun({
                   text: "NOMBRE",
                   bold: true,
-                  size: 20, // Tamaño de fuente
+                  size: 16, // Tamaño de fuente
                 }),
               ],
               alignment: AlignmentType.CENTER,
@@ -104,7 +104,7 @@ const generateActaEntrega = async ({ formData }) => {
                 new TextRun({
                   text: "MARCA",
                   bold: true,
-                  size: 20, // Tamaño de fuente
+                  size: 16, // Tamaño de fuente
                 }),
               ],
               alignment: AlignmentType.CENTER,
@@ -137,7 +137,7 @@ const generateActaEntrega = async ({ formData }) => {
                 new TextRun({
                   text: "MODELO",
                   bold: true,
-                  size: 20, // Tamaño de fuente
+                  size: 16, // Tamaño de fuente
                 }),
               ],
               alignment: AlignmentType.CENTER,
@@ -170,7 +170,7 @@ const generateActaEntrega = async ({ formData }) => {
                 new TextRun({
                   text: "COLOR",
                   bold: true,
-                  size: 20, // Tamaño de fuente
+                  size: 16, // Tamaño de fuente
                 }),
               ],
               alignment: AlignmentType.CENTER,
@@ -203,7 +203,7 @@ const generateActaEntrega = async ({ formData }) => {
                 new TextRun({
                   text: "SERIE",
                   bold: true,
-                  size: 20, // Tamaño de fuente
+                  size: 16, // Tamaño de fuente
                 }),
               ],
               alignment: AlignmentType.CENTER,
@@ -236,7 +236,7 @@ const generateActaEntrega = async ({ formData }) => {
                 new TextRun({
                   text: "PRECIO",
                   bold: true,
-                  size: 20, // Tamaño de fuente
+                  size: 16, // Tamaño de fuente
                 }),
               ],
               alignment: AlignmentType.CENTER,
@@ -269,7 +269,7 @@ const generateActaEntrega = async ({ formData }) => {
                 new TextRun({
                   text: "CODIGO",
                   bold: true,
-                  size: 20, // Tamaño de fuente
+                  size: 16, // Tamaño de fuente
                 }),
               ],
               alignment: AlignmentType.CENTER,
@@ -612,9 +612,9 @@ const generateActaEntrega = async ({ formData }) => {
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: "___________________________",
+                    text: "______________________________",
                     bold: true,
-                    size: 24,
+                    size: 22,
                   }),
                 ],
                 alignment: AlignmentType.CENTER, // Centrado
@@ -624,7 +624,7 @@ const generateActaEntrega = async ({ formData }) => {
                   new TextRun({
                     text: nombreEncargado,
                     bold: true,
-                    size: 20,
+                    size: 18,
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
@@ -633,7 +633,7 @@ const generateActaEntrega = async ({ formData }) => {
                 children: [
                   new TextRun({
                     text: cargoEncargado,
-                    size: 20,
+                    size: 18,
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
@@ -651,9 +651,9 @@ const generateActaEntrega = async ({ formData }) => {
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: "___________________________",
+                    text: "______________________________",
                     bold: true,
-                    size: 24,
+                    size: 22,
                   }),
                 ],
                 alignment: AlignmentType.CENTER, // Centrado
@@ -663,7 +663,7 @@ const generateActaEntrega = async ({ formData }) => {
                   new TextRun({
                     text: nombreSolicitante,
                     bold: true,
-                    size: 20,
+                    size: 18,
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
@@ -672,7 +672,7 @@ const generateActaEntrega = async ({ formData }) => {
                 children: [
                   new TextRun({
                     text: tipoDocumento + " " + numeroDocumento,
-                    size: 20,
+                    size: 18,
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
@@ -728,7 +728,7 @@ const generateActaEntrega = async ({ formData }) => {
               new TextRun({
                 text: `ACTA DE RECEPCION Y CONFORMIDAD ${codigoDocumento}`,
                 bold: true,
-                size: 32, // Tamaño de fuente
+                size: 24, // Tamaño de fuente
                 underline: {}, // Agregar subrayado
               }),
             ],
@@ -738,43 +738,43 @@ const generateActaEntrega = async ({ formData }) => {
             children: [
               new TextRun({
                 text: "En",
-                size: 24,
+                size: 20,
               }),
               new TextRun({
                 text: ` ${sede}, `,
-                size: 24,
+                size: 20,
                 bold: true,
               }),
               new TextRun({
                 text: "a los ",
-                size: 24,
+                size: 20,
               }),
               new TextRun({
                 text: `${formatFecha(fechaEntrega).diaHoy}`,
-                size: 24,
+                size: 20,
                 bold: true,
               }),
               new TextRun({
                 text: " días del mes de ",
-                size: 24,
+                size: 20,
               }),
               new TextRun({
                 text: `${formatFecha(fechaEntrega).mesHoy}`,
-                size: 24,
+                size: 20,
                 bold: true,
               }),
               new TextRun({
                 text: " del ",
-                size: 24,
+                size: 20,
               }),
               new TextRun({
                 text: `${formatFecha(fechaEntrega).yearHoy}`,
-                size: 24,
+                size: 20,
                 bold: true,
               }),
               new TextRun({
                 text: ", declaro recibir a plena conformidad lo siguiente: ",
-                size: 24,
+                size: 20,
               }),
               // new TextRun(`\nCódigo Documento: ${formData.codigoDocumento}`),
               // new TextRun(`\nÁrea Responsable: ${formData.areaResponsable}`),
@@ -788,9 +788,9 @@ const generateActaEntrega = async ({ formData }) => {
           new Paragraph({
             children: [
               new TextRun({
-                text: "EQUIPOS ASIGNADOS:",
+                text: "EQUIPOS ASIGNADOS",
                 bold: true,
-                size: 24, // Tamaño del texto
+                size: 20, // Tamaño del texto
               }),
             ],
           }),
@@ -802,114 +802,112 @@ const generateActaEntrega = async ({ formData }) => {
               type: WidthType.PERCENTAGE,
             },
           }),
+
           new Paragraph({ text: "" }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "Declaro que los equipos y accesorios que recibo de la oficina de",
-                size: 24,
-              }),
-              new TextRun({
-                text: ` ${areaResponsable}, `,
-                size: 24,
-                bold: true,
-              }),
-              new TextRun({
-                text: "están plenamente operativos y sin ningún daño.",
-                size: 24,
-              }),
-            ],
-            alignment: AlignmentType.JUSTIFIED, // Alineación justificada
-          }),
-          new Paragraph({ text: "" }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "Asimismo, declaro y asumo plena responsabilidad por su uso y cuidado, señalando que dichos bienes se dedicaran en forma exclusiva para desarrollar y cumplir con las labores encomendadas por la empresa ",
-                size: 24,
-              }),
-              new TextRun({
-                text: nombreEmpresa,
-                bold: true,
-                size: 24,
-              }),
-              new TextRun({
-                text: ". Además, en caso de perdida, robo o generar algún daño por descuido mío, me comprometo a pagar el precio integro de los equipos asignados a mi persona.",
-                bold: false,
-                size: 24,
-              }),
-            ],
-            alignment: AlignmentType.JUSTIFIED, // Alineación justificada
-          }),
-          new Paragraph({ text: "" }),
+
           new Paragraph({
             children: [
               new TextRun({
                 text: "Yo, ",
-                size: 24,
+                size: 20,
                 bold: false,
               }),
               new TextRun({
                 text: nombreSolicitante,
                 bold: true,
-                size: 24,
+                size: 20,
               }),
               new TextRun({
-                text: " con ",
+                text: " identificado con ",
                 bold: false,
-                size: 24,
+                size: 20,
               }),
               new TextRun({
                 text: tipoDocumento + " " + numeroDocumento,
                 bold: true,
-                size: 24,
+                size: 20,
               }),
               new TextRun({
-                text: ", Me comprometo a devolver todos los equipos debidamente inventariados y sin mayor deterioro que el uso razonable por las labores realizadas, al departamento de ",
-                size: 24,
+                text: ", declaro y asumo plena responsabilidad por el uso y cuidado de los equipos, los cuales recibo en buen estado, plenamente operativos y sin ningún daño. Asimismo, señalo que dichos bienes serán destinados exclusivamente al desarrollo y cumplimiento de las labores encomendadas por la empresa ",
+                size: 20,
               }),
               new TextRun({
-                text: areaResponsable,
+                text: nombreEmpresa,
                 bold: true,
-                size: 24,
-              }),
-              new TextRun({
-                text: ", en la fecha en que se me indique o cuando haya culminado mi Contrato de Prestación de Servicios.",
-                size: 24,
+                size: 20,
               }),
             ],
             alignment: AlignmentType.JUSTIFIED, // Alineación justificada
           }),
+
           new Paragraph({ text: "" }),
+
           new Paragraph({
             children: [
               new TextRun({
-                text: " Las observaciones por parte de ",
-                size: 24,
+                text: "Me comprometo a devolver todos los equipos debidamente inventariados y sin mayor deterioro que el derivado de un uso razonable por las labores realizadas, al área de ",
+                size: 20,
+                bold: false,
+              }),
+              new TextRun({
+                text: areaResponsable,
+                bold: true,
+                size: 20,
+              }),
+              new TextRun({
+                text: ", en la fecha que se me indique o al culminar mi contrato de prestación de servicios.",
+                bold: false,
+                size: 20,
+              }),
+            ],
+            alignment: AlignmentType.JUSTIFIED, // Alineación justificada
+          }),
+
+          new Paragraph({ text: "" }),
+
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "En caso de pérdida, robo, deterioro o daño imputable a mi responsabilidad, autorizo de manera expresa, previa e irrevocable a la empresa ",
+                size: 20,
+                bold: false,
+              }),
+              new TextRun({
+                text: nombreEmpresa,
+                bold: true,
+                size: 20,
+              }),
+              new TextRun({
+                text: " a efectuar el descuento proporcional o total del valor de los bienes asignados (considerando la depreciación correspondiente) en mi planilla de remuneraciones, compensación por tiempo de servicios (CTS), liquidación de beneficios sociales u otros conceptos que pudieran corresponderme, hasta cubrir el monto del perjuicio ocasionado, sin perjuicio de las acciones legales que pudieran iniciarse.",
+                bold: false,
+                size: 20,
+              }),
+            ],
+            alignment: AlignmentType.JUSTIFIED, // Alineación justificada
+          }),
+
+          new Paragraph({ text: "" }),
+
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: " Observaciones del trabajador (",
+                size: 20,
                 bold: false,
               }),
               new TextRun({
                 text: nombreSolicitante,
                 bold: true,
-                size: 24,
+                size: 20,
               }),
               new TextRun({
-                text: " son las siguientes",
+                text: "):",
                 bold: false,
-                size: 24,
+                size: 20,
               }),
             ],
           }),
-          new Paragraph({ text: "" }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "OBSERVACIONES:",
-                bold: true,
-                size: 24, // Tamaño del texto
-              }),
-            ],
-          }),
+
           new Paragraph({ text: "" }),
           singleColumnTable, // Agregar la tabla al documento
           new Paragraph({

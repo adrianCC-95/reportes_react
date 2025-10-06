@@ -24,6 +24,8 @@ const MenuActas = () => {
     category: "Celulares",
   });
 
+  const [errors, setErrors] = useState({});
+
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // 🔹 10 documentos por página
@@ -39,6 +41,31 @@ const MenuActas = () => {
     const newState = !autoSave;
     setAutoSave(newState);
     localStorage.setItem("autoSave", JSON.stringify(newState));
+  };
+
+  const validateForm = () => {
+    let errors = {};
+
+    if (!formData.year) {
+      errors.year = "El campo Año es obligatorio";
+    } else if (!/^\d{4}$/.test(formData.year)) {
+      errors.year = "El año debe contener solo números y tener 4 dígitos";
+    }
+
+    if (!formData.serialNumber.trim()) {
+      errors.serialNumber = "El número de serie es obligatorio";
+    } else if (formData.serialNumber.length < 2) {
+      errors.serialNumber =
+        "El número de serie debe tener al menos 2 caracteres";
+    }
+
+    if (!formData.category) {
+      errors.category = "La categoría es obligatoria";
+    }
+
+    setErrors(errors); // Guarda los errores en el estado
+
+    return errors; // 🔹 RETORNAR LOS ERRORES
   };
 
   const tipoActas = [
@@ -70,13 +97,27 @@ const MenuActas = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    // Limpiar solo el error del campo modificado
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: "", // Borra el error del campo actual
+    }));
   };
 
   const handleNext = () => {
-    closeModal();
-    navigate("/formulario-actas", {
-      state: { ...formData, actaType: selectedActa },
-    });
+    const validationErrors = validateForm(); // Obtiene los errores
+
+    if (Object.keys(validationErrors).length > 0) {
+      return; // 🔹 Si hay errores, detiene la navegación
+    }
+    try {
+      // Aquí podrías hacer otras operaciones asíncronas si es necesario
+      navigate("/formulario-actas", {
+        state: { ...formData, actaType: selectedActa },
+      });
+    } catch (error) {
+      console.error("Error al navegar:", error);
+    }
   };
 
   const getActasLista = async () => {
@@ -85,21 +126,23 @@ const MenuActas = () => {
     const folder = selectedActa.folder;
     const folderFull = `${year}/${category}/${folder}`;
     setIsLoading(true);
-    if (year || category || folder === "") {
+    if (year === "" || category === "" || folder === "") {
       console.log(
-        "error al traer los datos, verifique que los valores esten correctos"
+        "error al traer los datos, verifique que los valores esten correctos",
+        `${year}-${category}-${folder}`
       );
+      setIsLoading(false);
+    } else {
+      const res = await getActasNombres(folderFull);
+      if (res) setDataActas(res.archivos || []);
+      setIsLoading(false);
     }
-    const res = await getActasNombres(folderFull);
-    if (res) setDataActas(res.archivos);
-
-    setIsLoading(false);
   };
 
   // 🔹 Calcula los documentos de la página actual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentDocuments = dataActas.slice(indexOfFirstItem, indexOfLastItem);
+  const currentDocuments = dataActas?.slice(indexOfFirstItem, indexOfLastItem);
 
   // 🔹 Cambiar de página
   const totalPages = Math.ceil(dataActas.length / itemsPerPage);
@@ -178,19 +221,30 @@ const MenuActas = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {currentDocuments.map((doc, index) => (
-                          <tr
-                            key={index}
-                            className="hover:bg-gray-100 transition"
-                          >
-                            <td className="py-2 px-4 border-b">
-                              {indexOfFirstItem + index + 1}
-                            </td>
-                            <td className="py-2 px-4 border-b text-gray-800">
-                              {doc}
+                        {currentDocuments.length === 0 ? (
+                          <tr>
+                            <td
+                              colSpan="2"
+                              className="py-2 px-4 border-b text-center text-gray-500"
+                            >
+                              No hay registros disponibles
                             </td>
                           </tr>
-                        ))}
+                        ) : (
+                          currentDocuments.map((doc, index) => (
+                            <tr
+                              key={index}
+                              className="hover:bg-gray-100 transition"
+                            >
+                              <td className="py-2 px-4 border-b">
+                                {indexOfFirstItem + index + 1}
+                              </td>
+                              <td className="py-2 px-4 border-b text-gray-800">
+                                {doc}
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -235,6 +289,9 @@ const MenuActas = () => {
                     value={formData.year}
                     onChange={handleChange}
                   />
+                  {errors.year && (
+                    <p className="text-red-500 text-sm">{errors.year}</p>
+                  )}
                 </FormGroup>
                 <FormGroup>
                   <Label for="serialNumber">Número de Serie</Label>
@@ -245,6 +302,9 @@ const MenuActas = () => {
                     value={formData.serialNumber}
                     onChange={handleChange}
                   />
+                  {errors.serialNumber && (
+                    <p className="text-red-500">{errors.serialNumber}</p>
+                  )}
                 </FormGroup>
                 <FormGroup>
                   <Label for="category">Categoría de Producto</Label>
@@ -258,6 +318,9 @@ const MenuActas = () => {
                     <option value="Celulares">Celulares</option>
                     <option value="Equipos">Equipos</option>
                   </Input>
+                  {errors.category && (
+                    <p className="text-red-500">{errors.category}</p>
+                  )}
                 </FormGroup>
                 {/* 🔹 Interruptor más grande y centrado */}
                 <FormGroup className="mt-8 flex flex-col items-center">
