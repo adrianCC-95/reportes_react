@@ -105,6 +105,8 @@ export const generarActaEntrega = async ({ formData }) => {
       DNI: numeroDocumento,
       EMPRESA: nombreEmpresa,
       AREA: areaResponsable,
+      nombreEncargado,
+      cargoEncargado,
       // fecha: new Date().toLocaleDateString(),
       // imagen: imagenBase64,
     });
