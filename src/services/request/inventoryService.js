@@ -66,7 +66,8 @@ const normalize = (str) =>
     ?.normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .trim();
+    .trim()
+    .replace(/\s+/g, " "); // 🔥 elimina dobles espacios
 
 // Función para calcular la similitud basada en palabras individuales
 const calcularSimilitud = (nombreCompleto, asignacion) => {
@@ -75,11 +76,11 @@ const calcularSimilitud = (nombreCompleto, asignacion) => {
 
   // Contamos cuántas palabras coinciden
   const coincidencias = [...palabrasNombre].filter((word) =>
-    palabrasAsignacion.has(word)
+    palabrasAsignacion.has(word),
   ).length;
 
   // Calculamos la similitud basada en el porcentaje de palabras coincidentes
-  const totalPalabras = Math.max(palabrasNombre.size, palabrasAsignacion.size);
+  const totalPalabras = palabrasNombre.size;
   return coincidencias / totalPalabras;
 };
 
@@ -88,8 +89,8 @@ export const fetchInventoryByPersonal = async (nombreCompleto) => {
   const data = await fetchInventoryData();
   const dataEquipos = await fetchInventoryDataEquipos();
 
-  const UMBRAL_SIMILITUD = 0.5; // Definir umbral mínimo de similitud
-
+  const UMBRAL_SIMILITUD = 0.4; // Definir umbral mínimo de similitud
+  console.log("🔍 Buscando coincidencias para el nombre:", nombreCompleto);
   const coincidencias = data.filter((item) => {
     if (item["ASIGNACION"]) {
       const similitud = calcularSimilitud(nombreCompleto, item["ASIGNACION"]);
@@ -117,12 +118,12 @@ export const fetchInventoryByPersonal = async (nombreCompleto) => {
   }));
   console.log(
     `🔍 Coincidencias encontradas en la hoja -Inventario 2024- para ${nombreCompleto}:`,
-    formatCoincidencias
+    formatCoincidencias,
   );
 
   console.log(
     `🔍 Coincidencias encontradas en la hoja -Equipos- para ${nombreCompleto}:`,
-    formatCoincidenciasEquipo
+    formatCoincidenciasEquipo,
   );
 
   return [formatCoincidencias, formatCoincidenciasEquipo];
@@ -145,7 +146,7 @@ export const descargarYEnviarExcel = async () => {
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
-      }
+      },
     );
 
     console.log("✅ Archivo enviado al backend:", uploadResponse.data);

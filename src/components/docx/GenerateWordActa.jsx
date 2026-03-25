@@ -3,9 +3,12 @@ import axios from "axios";
 import { saveAs } from "file-saver";
 import logo from "../../assets/logo-empresas.jpg";
 import { Spinner } from "reactstrap";
-import generateActaPrestamo from "./ActaPrestamoWord";
-import generateActaDevolucion from "./ActaDevolucionWord";
-import generateActaEntrega from "./ActaEntregaWord";
+// import generateActaPrestamo from "./ActaPrestamoWord";
+// import generateActaDevolucion from "./ActaDevolucionWord";
+// import generateActaEntrega from "./ActaEntregaWord";
+import { generarActaPrestamo } from "../docxtemplater/actaPrestamo";
+import { generarActaEntrega } from "../docxtemplater/actaEntrega";
+import { generarActaDevolucion } from "../docxtemplater/actaDevolucion";
 import { saveActaNextcloud } from "../../services/request/apiNexcloud";
 
 const GenerateWord = ({ formData, actaType, dataGeneral }) => {
@@ -17,13 +20,13 @@ const GenerateWord = ({ formData, actaType, dataGeneral }) => {
     console.log("ACTATYPE", actaType.prefijo);
     switch (actaType.prefijo) {
       case "PRE":
-        blob = await generateActaPrestamo();
+        blob = await generarActaPrestamo({ formData });
         break;
       case "ADC":
-        blob = await generateActaDevolucion({ formData });
+        blob = await generarActaDevolucion({ formData });
         break;
       case "AEC":
-        blob = await generateActaEntrega({ formData });
+        blob = await generarActaEntrega({ formData });
         break;
       default:
         return;
@@ -81,7 +84,7 @@ const GenerateWord = ({ formData, actaType, dataGeneral }) => {
             Accept: "application/json",
             "Content-Type": "application/x-www-form-urlencoded",
           },
-        }
+        },
       );
 
       const accessToken = authResponse.data.access_token; // Obtener el token
@@ -102,7 +105,7 @@ const GenerateWord = ({ formData, actaType, dataGeneral }) => {
             "Content-Type": "multipart/form-data",
           },
           responseType: "arraybuffer", // Asegurar que recibimos el archivo PDF en binario
-        }
+        },
       );
 
       // Paso 4: Descargar el archivo PDF

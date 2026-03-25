@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 //import ModalActa from "../components/actas/modals/ModalActa";
 import GenerateWord from "../components/docx/GenerateWordActa";
 //import { Button } from "reactstrap";
-import { fetchNombres } from "../services/request/apiExcel";
+import { fetchNombres, fetchNombresTI } from "../services/request/apiExcel";
 import {
   fetchInventoryByPersonal,
   descargarYEnviarExcel,
@@ -16,13 +16,15 @@ import { Spinner } from "reactstrap";
 function Actas() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [nombresTi, setNombresTi] = useState([]);
+  const [loadingTi, setLoadingTi] = useState(false);
   const [nombres, setNombres] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingExcel, setLoadingExcel] = useState(false);
   const [equipoSeleccionado, setEquipoSeleccionado] = useState(null);
   // 🔹 Estado del switch con persistencia en localStorage
   const [autoSave, setAutoSave] = useState(
-    JSON.parse(localStorage.getItem("autoSave")) || false
+    JSON.parse(localStorage.getItem("autoSave")) || false,
   );
 
   // 🔹 Manejo del cambio del switch
@@ -148,6 +150,15 @@ function Actas() {
     // obtenerInventario(selectedOption ? selectedOption.value : "");
   };
 
+  const handleNombreTiChange = async (selectedOption) => {
+    setFormData({
+      ...formData,
+      nombreEncargado: selectedOption ? selectedOption.value : "",
+      cargoEncargado: selectedOption ? selectedOption.cargo : "",
+    });
+    // obtenerInventario(selectedOption ? selectedOption.value : "");
+  };
+
   // Función para agregar un equipo a la lista
   const handleAddEquipo = () => {
     if (
@@ -206,6 +217,14 @@ function Actas() {
       });
   };
 
+  const getNombresPersonalTi = async () => {
+    setLoadingTi(true);
+    const nombresTi = await fetchNombresTI();
+    console.log(nombresTi);
+    if (nombresTi) setLoadingTi(false);
+    setNombresTi(nombresTi);
+  };
+
   const getNombresPersonal = async () => {
     setLoading(true);
     const nombresData = await fetchNombres();
@@ -215,6 +234,10 @@ function Actas() {
 
   useEffect(() => {
     getNombresPersonal();
+  }, []);
+
+  useEffect(() => {
+    getNombresPersonalTi();
   }, []);
 
   useEffect(() => {
@@ -254,7 +277,7 @@ function Actas() {
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100 p-6">
-      <div className="w-full max-w-5xl bg-white p-8 rounded-lg shadow-lg">
+      <div className="w-full max-w-7xl bg-white p-8 rounded-lg shadow-lg">
         <div className="flex items-center p-4 border border-gray-300 rounded-lg bg-gray-50">
           {/* 🔹 Columna 1: Título (70%) */}
           <div className="w-[65%] pr-4 flex items-center justify-center text-center">
@@ -510,7 +533,7 @@ function Actas() {
                 Datos del Encargado de Área
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
+                {/* <div>
                   <label
                     htmlFor="nombreEncargado"
                     className="block text-sm font-medium text-gray-700"
@@ -524,6 +547,25 @@ function Actas() {
                     value={formData.nombreEncargado}
                     onChange={handleChange}
                     className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div> */}
+                <div>
+                  <label
+                    htmlFor="nombreEncargado"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Nombre Encargado
+                  </label>
+                  <Select
+                    id="nombreEncargado"
+                    name="nombreEncargado"
+                    options={nombresTi}
+                    isLoading={loadingTi}
+                    isClearable
+                    isSearchable
+                    placeholder="Selecciona un nombre..."
+                    onChange={handleNombreTiChange}
+                    className="mt-2"
                   />
                 </div>
                 <div>

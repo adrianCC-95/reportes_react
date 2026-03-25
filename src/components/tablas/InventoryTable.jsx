@@ -56,6 +56,8 @@ const InventoryTable = ({ nombrePersonal, onEquipoSeleccionado }) => {
                   <th className="p-2 border">Modelo</th>
                   <th className="p-2 border">Serie</th>
                   <th className="p-2 border">Descripción</th>
+                  <th className="p-2 border">Asignacion</th>
+                  <th className="p-2 border">Fecha de Asignacion</th>
                   <th className="p-2 border">Estado</th>
                 </tr>
               </thead>
@@ -76,6 +78,8 @@ const InventoryTable = ({ nombrePersonal, onEquipoSeleccionado }) => {
                     <td className="p-2 border">{equipo.MODELO}</td>
                     <td className="p-2 border">{equipo["NRO. SERIE"]}</td>
                     <td className="p-2 border">{equipo.DESCRIPCION}</td>
+                    <td className="p-2 border">{equipo.ASIGNACION}</td>
+                    <td className="p-2 border">{equipo["FECHA ASIGNACION"]}</td>
                     <td className="p-2 border">{equipo.ESTADO}</td>
                   </tr>
                 ))}

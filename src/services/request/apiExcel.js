@@ -20,14 +20,14 @@ export async function buscarEmpleado(nombreBuscado) {
       text
         .replace("/*O_o*/", "")
         .replace("google.visualization.Query.setResponse(", "")
-        .slice(0, -2)
+        .slice(0, -2),
     );
 
     // Obtener encabezados y datos
     const headers = json.table.cols.map((col) => col.label);
 
     const rows = json.table.rows.map((row) =>
-      row.c.map((cell) => (cell ? cell.v : null))
+      row.c.map((cell) => (cell ? cell.v : null)),
     );
 
     // Encontrar la posición de la columna "Nombre Completo"
@@ -41,12 +41,12 @@ export async function buscarEmpleado(nombreBuscado) {
     const encontrado = rows.some(
       (row) =>
         row[nombreIndex] &&
-        row[nombreIndex].toLowerCase() === nombreBuscado.toLowerCase()
+        row[nombreIndex].toLowerCase() === nombreBuscado.toLowerCase(),
     );
 
     if (encontrado) {
       console.log(
-        `✅ El empleado "${nombreBuscado}" existe en la base de datos.`
+        `✅ El empleado "${nombreBuscado}" existe en la base de datos.`,
       );
     } else {
       console.log(`❌ El empleado "${nombreBuscado}" NO está registrado.`);
@@ -55,6 +55,72 @@ export async function buscarEmpleado(nombreBuscado) {
     console.error("❌ Error al obtener los datos:", error.message);
   }
 }
+export const fetchNombresTI = async () => {
+  try {
+    const response = await descargarYEnviarExcelPersonalDTI();
+
+    if (!response?.data || !Array.isArray(response.data)) {
+      console.error("❌ Datos inválidos");
+      return [];
+    }
+
+    const dataExcel = response.data;
+
+    if (dataExcel.length === 0) {
+      console.error("❌ Excel vacío");
+      return [];
+    }
+
+    const normalizar = (str) => str?.toString().trim().toUpperCase();
+
+    const headers = Object.keys(dataExcel[0]);
+
+    const headerMap = {};
+    headers.forEach((h) => {
+      headerMap[normalizar(h)] = h;
+    });
+
+    const required = [
+      "NOMBRE COMPLETO",
+      "AREA",
+      "CARGO",
+      "SEDE",
+      "EMPRESA 2",
+      "DNI",
+    ];
+
+    const faltantes = required.filter((r) => !headerMap[r]);
+
+    if (faltantes.length > 0) {
+      console.error("❌ Faltan columnas:", faltantes);
+      return [];
+    }
+
+    return dataExcel.reduce((acc, row) => {
+      const cargo = row[headerMap["AREA"]];
+
+      // 🔥 FILTRO: solo TI
+      if (normalizar(cargo) !== "TI") return acc;
+
+      const nombre = row[headerMap["NOMBRE COMPLETO"]];
+      const dni = row[headerMap["DNI"]];
+
+      if (!nombre || !dni) return acc;
+
+      acc.push({
+        value: nombre,
+        label: nombre,
+        area: row[headerMap["AREA"]],
+        cargo: row[headerMap["CARGO"]],
+      });
+
+      return acc;
+    }, []);
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+    return [];
+  }
+};
 
 export const fetchNombres = async () => {
   try {
@@ -82,7 +148,7 @@ export const fetchNombres = async () => {
       !headers.includes("EMPRESA 2")
     ) {
       console.error(
-        "❌ No se encontraron las columnas necesarias ('Nombre Completo', 'DNI', 'Sede', 'Empresa')"
+        "❌ No se encontraron las columnas necesarias ('Nombre Completo', 'DNI', 'Sede', 'Empresa')",
       );
       return [];
     }
@@ -126,7 +192,7 @@ export const descargarYEnviarExcelPersonalDTI = async () => {
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
-      }
+      },
     );
 
     console.log("✅ Archivo enviado al backend:", uploadResponse.data);
