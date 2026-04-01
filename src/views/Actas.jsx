@@ -278,21 +278,21 @@ function Actas() {
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100 p-6">
       <div className="w-full max-w-7xl bg-white p-8 rounded-lg shadow-lg">
-        <div className="flex items-center p-4 border border-gray-300 rounded-lg bg-gray-50">
-          {/* 🔹 Columna 1: Título (70%) */}
-          <div className="w-[65%] pr-4 flex items-center justify-center text-center">
-            <h1 className="text-3xl font-bold text-gray-900">
+        <div className="flex flex-col lg:flex-row items-center p-4 border border-gray-300 rounded-lg bg-gray-50 gap-4">
+          {/* 🔹 Columna 1: Título */}
+          <div className="w-full lg:w-[65%] lg:pr-4 flex items-center justify-center text-center">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 break-words">
               FORMULARIO DE {actaType.nombre ?? "N/A"} -{" "}
               {category?.toUpperCase()}
             </h1>
           </div>
 
-          {/* 🔹 Línea divisora */}
-          <div className="w-px h-16 bg-gray-400"></div>
+          {/* 🔹 Línea divisora solo desktop */}
+          <div className="hidden lg:block w-px h-16 bg-gray-400"></div>
 
-          {/* 🔹 Columna 2: Código (30%) */}
-          <div className="w-[35%] pl-4 flex items-center justify-center text-center">
-            <span className="text-3xl font-extrabold text-blue-700 bg-blue-100 px-5 py-3 rounded-lg shadow-md">
+          {/* 🔹 Código */}
+          <div className="w-full lg:w-[35%] lg:pl-4 flex items-center justify-center text-center">
+            <span className="text-lg sm:text-2xl lg:text-3xl font-extrabold text-blue-700 bg-blue-100 px-4 sm:px-5 py-2 sm:py-3 rounded-lg shadow-md break-all">
               {formData.codigoDocumento}
             </span>
           </div>
@@ -303,7 +303,7 @@ function Actas() {
           {/* Lado Izquierdo: Datos del solicitante */}
           <div>
             <section className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-              <div className="w-full max-w-lg p-8 rounded-lg">
+              <div className="w-full p-4 sm:p-6 lg:p-8 rounded-lg">
                 <p>
                   <strong>Año:</strong> {year}
                 </p>
@@ -315,11 +315,11 @@ function Actas() {
                 </p>
 
                 {/* Botones */}
-                <div className="mt-6 flex justify-between">
+                <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:justify-between">
                   <button
                     type="button"
                     onClick={() => navigate("/")}
-                    className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-gray-400"
+                    className="w-full sm:w-auto px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-gray-400"
                   >
                     Volver al Menú
                   </button>
@@ -329,7 +329,7 @@ function Actas() {
             <br />
             {/* Datos del Solicitante */}
             <section className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-              <h2 className="text-xl font-medium text-gray-700 mb-4">
+              <h2 className="text-lg sm:text-xl font-medium text-gray-700 mb-4">
                 Datos del Solicitante
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -349,7 +349,7 @@ function Actas() {
                     isSearchable
                     placeholder="Selecciona un nombre..."
                     onChange={handleNombreChange}
-                    className="mt-2"
+                    className="mt-2 w-full"
                   />
                 </div>
                 <div>
@@ -390,23 +390,24 @@ function Actas() {
                   />
                 </div>
               </div>
-              <div className="mt-6 flex justify-between">
+              <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:justify-between">
                 <button
                   type="button"
                   onClick={actualizarLista}
-                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-gray-400"
+                  className="w-full sm:w-auto px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-gray-400"
                 >
-                  {loading ? <Spinner size="sm" /> : " Actualizar Nombres"}
+                  {loading ? <Spinner size="sm" /> : "Actualizar Nombres"}
                 </button>
+
                 <button
                   type="button"
                   onClick={actualizarInventario}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-400"
+                  className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-400"
                 >
                   {loadingExcel ? (
                     <Spinner size="sm" />
                   ) : (
-                    " Actualizar Inventario"
+                    "Actualizar Inventario"
                   )}
                 </button>
               </div>
@@ -417,7 +418,7 @@ function Actas() {
           <div>
             {/* Datos Generales */}
             <section className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-              <h2 className="text-xl font-medium text-gray-700 mb-4">
+              <h2 className="text-lg sm:text-xl font-medium text-gray-700 mb-4">
                 Datos Generales
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -589,7 +590,7 @@ function Actas() {
             <br />
             <section className="border border-gray-300 px-4 rounded-lg bg-gray-50">
               {/* 🔹 Interruptor Estilizado Compacto */}
-              <div className="my-2 flex items-center justify-between">
+              <div className="my-2 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:justify-between">
                 <label className="text-sm text-gray-700 font-semibold">
                   ¿Guardar automáticamente en Nextcloud?
                 </label>
@@ -616,18 +617,15 @@ function Actas() {
         />
         <br />
         <div className="grid grid-cols-1">
-          {/* Datos de los Equipos */}
           <div>
             <section className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-              <h2 className="text-xl font-medium text-gray-700 mb-4">
+              <h2 className="text-lg sm:text-xl font-medium text-gray-700 mb-4">
                 Datos de los Equipos
               </h2>
-              <div className="grid grid-cols-2 py-2 gap-6">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 py-2 gap-6">
                 <div>
-                  <label
-                    htmlFor="nombre"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-sm font-medium text-gray-700">
                     Nombre de Equipo (Laptop, Celular, etc)
                   </label>
                   <input
@@ -639,11 +637,9 @@ function Actas() {
                     className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
+
                 <div>
-                  <label
-                    htmlFor="serie"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-sm font-medium text-gray-700">
                     Serie
                   </label>
                   <input
@@ -656,12 +652,10 @@ function Actas() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 py-2 gap-6">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 py-2 gap-6">
                 <div>
-                  <label
-                    htmlFor="marca"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-sm font-medium text-gray-700">
                     Marca
                   </label>
                   <input
@@ -673,11 +667,9 @@ function Actas() {
                     className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
+
                 <div>
-                  <label
-                    htmlFor="modelo"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-sm font-medium text-gray-700">
                     Modelo
                   </label>
                   <input
@@ -690,12 +682,10 @@ function Actas() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 py-2 gap-6">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 py-2 gap-6">
                 <div>
-                  <label
-                    htmlFor="color"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-sm font-medium text-gray-700">
                     Color
                   </label>
                   <input
@@ -707,11 +697,9 @@ function Actas() {
                     className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
+
                 <div>
-                  <label
-                    htmlFor="precio"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-sm font-medium text-gray-700">
                     Precio
                   </label>
                   <input
@@ -724,12 +712,10 @@ function Actas() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 py-2 gap-6">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 py-2 gap-6">
                 <div>
-                  <label
-                    htmlFor="codigo"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-sm font-medium text-gray-700">
                     Código (Inventario)
                   </label>
                   <input
@@ -742,10 +728,11 @@ function Actas() {
                   />
                 </div>
               </div>
+
               <button
                 type="button"
                 onClick={handleAddEquipo}
-                className="mt-6 w-full px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="mt-6 w-full sm:w-auto px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700"
               >
                 Agregar Equipo
               </button>
@@ -755,39 +742,30 @@ function Actas() {
         <br />
         {/* Mostrar Equipos Agregados */}
         <section className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-          <h2 className="text-xl font-medium text-gray-700 mb-4">
+          <h2 className="text-lg sm:text-xl font-medium text-gray-700 mb-4">
             Equipos Registrados
           </h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-300 bg-white rounded-lg shadow-md">
+
+          {/* Aviso solo móvil */}
+          <p className="text-xs text-gray-500 mb-2 md:hidden">
+            Desliza horizontalmente para ver toda la tabla →
+          </p>
+
+          <div className="overflow-x-auto rounded-lg">
+            <table className="min-w-[900px] w-full border border-gray-300 bg-white rounded-lg shadow-md text-sm">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-2 text-left border-b border-gray-300">
-                    Nombre
-                  </th>
-                  <th className="px-4 py-2 text-left border-b border-gray-300">
-                    Marca
-                  </th>
-                  <th className="px-4 py-2 text-left border-b border-gray-300">
-                    Modelo
-                  </th>
-                  <th className="px-4 py-2 text-left border-b border-gray-300">
-                    Color
-                  </th>
-                  <th className="px-4 py-2 text-left border-b border-gray-300">
-                    Serie
-                  </th>
-                  <th className="px-4 py-2 text-left border-b border-gray-300">
-                    Precio
-                  </th>
-                  <th className="px-4 py-2 text-left border-b border-gray-300">
-                    Código
-                  </th>
-                  <th className="px-4 py-2 text-left border-b border-gray-300">
-                    Acciones
-                  </th>
+                  <th className="px-4 py-2 text-left border-b">Nombre</th>
+                  <th className="px-4 py-2 text-left border-b">Marca</th>
+                  <th className="px-4 py-2 text-left border-b">Modelo</th>
+                  <th className="px-4 py-2 text-left border-b">Color</th>
+                  <th className="px-4 py-2 text-left border-b">Serie</th>
+                  <th className="px-4 py-2 text-left border-b">Precio</th>
+                  <th className="px-4 py-2 text-left border-b">Código</th>
+                  <th className="px-4 py-2 text-left border-b">Acciones</th>
                 </tr>
               </thead>
+
               <tbody className="divide-y divide-gray-200">
                 {formData.equipos.length === 0 ? (
                   <tr>
@@ -801,32 +779,24 @@ function Actas() {
                 ) : (
                   formData.equipos.map((equipo, index) => (
                     <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 border-b border-gray-300">
+                      <td className="px-4 py-2 border-b whitespace-nowrap">
                         {equipo.nombre}
                       </td>
-                      <td className="px-4 py-2 border-b border-gray-300">
-                        {equipo.marca}
-                      </td>
-                      <td className="px-4 py-2 border-b border-gray-300">
-                        {equipo.modelo}
-                      </td>
-                      <td className="px-4 py-2 border-b border-gray-300">
-                        {equipo.color}
-                      </td>
-                      <td className="px-4 py-2 border-b border-gray-300">
+                      <td className="px-4 py-2 border-b">{equipo.marca}</td>
+                      <td className="px-4 py-2 border-b">{equipo.modelo}</td>
+                      <td className="px-4 py-2 border-b">{equipo.color}</td>
+                      <td className="px-4 py-2 border-b whitespace-nowrap">
                         {equipo.serie}
                       </td>
-                      <td className="px-4 py-2 border-b border-gray-300">
-                        {equipo.precio}
-                      </td>
-                      <td className="px-4 py-2 border-b border-gray-300">
+                      <td className="px-4 py-2 border-b">{equipo.precio}</td>
+                      <td className="px-4 py-2 border-b whitespace-nowrap">
                         {equipo.codigo}
                       </td>
-                      <td className="px-4 py-2 border-b border-gray-300">
+                      <td className="px-4 py-2 border-b">
                         <button
                           type="button"
                           onClick={() => handleRemoveEquipo(index)}
-                          className="px-1 bg-red-600 text-white font-semibold rounded-lg shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                          className="px-3 py-1 bg-red-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:bg-red-700"
                         >
                           Eliminar
                         </button>
@@ -840,11 +810,7 @@ function Actas() {
         </section>
         <section>
           <div className="mt-4">
-            {/* Botón para vista previa */}
-            <div className="mt-4 px-4 text-right">
-              {/* <Button color="success" onClick={toggleModal}>
-                Vista Previa del Acta en PDF
-              </Button> */}
+            <div className="mt-4 px-2 sm:px-4 flex justify-center sm:justify-end">
               <GenerateWord
                 formData={formData}
                 actaType={actaType}

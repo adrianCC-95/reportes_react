@@ -133,28 +133,28 @@ const GenerateWord = ({ formData, actaType, dataGeneral }) => {
   // });
 
   return (
-    <div className="flex justify-center items-center mt-6 space-x-4">
-      {/* Botón para descargar Word */}
+    <div className="flex flex-col sm:flex-row justify-center items-stretch sm:items-center mt-6 gap-3 sm:gap-4">
+      {/* Botón WORD */}
       <button
         onClick={downloadAsWord}
-        className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 transition duration-300"
+        className="w-full sm:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 transition duration-300"
       >
-        {isLoadingWord ? (
-          <Spinner /> // Aquí puedes agregar un spinner de carga
-        ) : (
-          "Descargar como WORD"
-        )}
+        {isLoadingWord ? <Spinner /> : "Descargar como WORD"}
       </button>
-      {/* Botón para descargar PDF */}
-      <button
+
+      {/* Botón PDF */}
+      {/* <button
         onClick={authenticateAndConvertToPDF}
-        className="px-6 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-lg hover:bg-green-700 transition duration-300"
+        className="w-full sm:w-auto px-6 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-lg hover:bg-green-700 transition duration-300"
       >
-        {isLoadingPDF ? (
-          <Spinner /> // Aquí puedes agregar un spinner de carga
-        ) : (
-          "Descargar como PDF"
-        )}
+        {isLoadingPDF ? <Spinner /> : "Descargar como PDF"}
+      </button> */}
+
+      <button
+        onClick={downloadAsPDF}
+        className="w-full sm:w-auto px-6 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-lg hover:bg-green-700 transition duration-300"
+      >
+        {isLoadingPDF ? <Spinner /> : "Descargar como PDF"}
       </button>
     </div>
   );

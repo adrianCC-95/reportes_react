@@ -33,7 +33,7 @@ const MenuActas = () => {
 
   // 🔹 Estado para el switch de guardado automático
   const [autoSave, setAutoSave] = useState(
-    JSON.parse(localStorage.getItem("autoSave")) || false
+    JSON.parse(localStorage.getItem("autoSave")) || false,
   );
 
   // 🔹 Manejar el cambio de switch
@@ -129,7 +129,7 @@ const MenuActas = () => {
     if (year === "" || category === "" || folder === "") {
       console.log(
         "error al traer los datos, verifique que los valores esten correctos",
-        `${year}-${category}-${folder}`
+        `${year}-${category}-${folder}`,
       );
       setIsLoading(false);
     } else {
@@ -179,8 +179,8 @@ const MenuActas = () => {
                           index === 0
                             ? "from-blue-100 to-blue-200"
                             : index === 1
-                            ? "from-green-100 to-green-200"
-                            : "from-yellow-100 to-yellow-200"
+                              ? "from-green-100 to-green-200"
+                              : "from-yellow-100 to-yellow-200"
                         }`}
           >
             <h2 className="text-xl font-medium">{`ACTA DE ${acta.nombre}`}</h2>
@@ -193,10 +193,11 @@ const MenuActas = () => {
         <ModalHeader toggle={closeModal}>
           {`DATOS PARA ACTA DE ${selectedActa.nombre}`}
         </ModalHeader>
+
         <ModalBody>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* 📂 Columna Izquierda - Documentos Nextcloud */}
-            <div className="border-r pr-6">
+            <div className="lg:border-r lg:pr-6">
               <h3 className="text-lg font-semibold mb-3 text-gray-800">
                 📄 Documentos Encontrados
               </h3>
@@ -210,8 +211,8 @@ const MenuActas = () => {
                 </div>
               ) : dataActas.length > 0 ? (
                 <div className="border rounded-lg shadow-sm overflow-hidden">
-                  <div className="max-h-80 overflow-y-auto">
-                    <table className="min-w-full bg-white border border-gray-300">
+                  <div className="max-h-80 overflow-auto">
+                    <table className="min-w-full bg-white border border-gray-300 text-sm">
                       <thead className="bg-gray-200 text-gray-700">
                         <tr>
                           <th className="py-2 px-4 border-b text-left">#</th>
@@ -239,7 +240,7 @@ const MenuActas = () => {
                               <td className="py-2 px-4 border-b">
                                 {indexOfFirstItem + index + 1}
                               </td>
-                              <td className="py-2 px-4 border-b text-gray-800">
+                              <td className="py-2 px-4 border-b text-gray-800 break-all">
                                 {doc}
                               </td>
                             </tr>
@@ -250,7 +251,7 @@ const MenuActas = () => {
                   </div>
 
                   {/* 🔹 Paginación */}
-                  <div className="flex justify-between items-center p-3 bg-gray-100">
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-3 p-3 bg-gray-100">
                     <button
                       className="px-3 py-1 text-sm text-white bg-blue-600 rounded-md disabled:bg-gray-300"
                       onClick={() => changePage(currentPage - 1)}
@@ -258,9 +259,11 @@ const MenuActas = () => {
                     >
                       ◀ Anterior
                     </button>
-                    <span className="text-gray-700 text-sm">
+
+                    <span className="text-gray-700 text-sm text-center">
                       Página {currentPage} de {totalPages}
                     </span>
+
                     <button
                       className="px-3 py-1 text-sm text-white bg-blue-600 rounded-md disabled:bg-gray-300"
                       onClick={() => changePage(currentPage + 1)}
@@ -279,7 +282,7 @@ const MenuActas = () => {
 
             {/* 📋 Columna Derecha - Formulario */}
             <div>
-              <Form>
+              <Form className="space-y-4">
                 <FormGroup>
                   <Label for="year">Año</Label>
                   <Input
@@ -293,6 +296,7 @@ const MenuActas = () => {
                     <p className="text-red-500 text-sm">{errors.year}</p>
                   )}
                 </FormGroup>
+
                 <FormGroup>
                   <Label for="serialNumber">Número de Serie</Label>
                   <Input
@@ -306,6 +310,7 @@ const MenuActas = () => {
                     <p className="text-red-500">{errors.serialNumber}</p>
                   )}
                 </FormGroup>
+
                 <FormGroup>
                   <Label for="category">Categoría de Producto</Label>
                   <Input
@@ -322,11 +327,13 @@ const MenuActas = () => {
                     <p className="text-red-500">{errors.category}</p>
                   )}
                 </FormGroup>
-                {/* 🔹 Interruptor más grande y centrado */}
+
+                {/* 🔹 Interruptor */}
                 <FormGroup className="mt-8 flex flex-col items-center">
-                  <Label className="text-lg font-semibold mb-4">
+                  <Label className="text-base sm:text-lg font-semibold mb-4 text-center">
                     Desea guardar automaticamente el archivo en Nextcloud?
                   </Label>
+
                   <div
                     className={`relative w-20 h-10 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 ${
                       autoSave ? "bg-green-500" : "bg-gray-400"
@@ -344,6 +351,7 @@ const MenuActas = () => {
             </div>
           </div>
         </ModalBody>
+
         <ModalFooter>
           <Button color="secondary" onClick={closeModal}>
             Cancelar
