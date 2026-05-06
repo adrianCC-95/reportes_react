@@ -6,6 +6,8 @@ import { Spinner } from "reactstrap";
 // import generateActaPrestamo from "./ActaPrestamoWord";
 // import generateActaDevolucion from "./ActaDevolucionWord";
 // import generateActaEntrega from "./ActaEntregaWord";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import PdfActaSelector from "../pdf/PdfActaSelector";
 import { generarActaPrestamo } from "../docxtemplater/actaPrestamo";
 import { generarActaEntrega } from "../docxtemplater/actaEntrega";
 import { generarActaDevolucion } from "../docxtemplater/actaDevolucion";
@@ -150,12 +152,13 @@ const GenerateWord = ({ formData, actaType, dataGeneral }) => {
         {isLoadingPDF ? <Spinner /> : "Descargar como PDF"}
       </button> */}
 
-      <button
-        onClick={downloadAsPDF}
+      <PDFDownloadLink
+        document={<PdfActaSelector formData={formData} actaType={actaType} />}
+        fileName={`ACTA-${actaType.prefijo}-${formData.codigoDocumento}.pdf`}
         className="w-full sm:w-auto px-6 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-lg hover:bg-green-700 transition duration-300"
       >
-        {isLoadingPDF ? <Spinner /> : "Descargar como PDF"}
-      </button>
+        {({ loading }) => (loading ? "Generando PDF..." : "Descargar como PDF")}
+      </PDFDownloadLink>
     </div>
   );
 };
